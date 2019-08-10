@@ -1,12 +1,11 @@
 import React, {Component} from 'react';
 
-class Register extends Component {
+class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
             email: '',
             password: '',
-            nickname: ''
         };
     }
 
@@ -19,7 +18,7 @@ class Register extends Component {
 
     onSubmit = (event) => {
         event.preventDefault();
-        fetch('/api/account/register', {
+        fetch('/api/account/login', {
             method: 'POST',
             body: JSON.stringify(this.state),
             headers: {
@@ -27,14 +26,14 @@ class Register extends Component {
             }
         }).then(res => {
             if (res.status === 200) {
-                console.log('Registered');
-                alert('Registered successfully!');
+                console.log('Logged in');
+                alert('Logged in successfully!');
             } else {
                 throw new Error(res.error);
             }
         }).catch(err => {
             console.error(err);
-            alert('Unable to register! Please try again.')
+            alert('Unable to login! Please try again.')
         })
     };
 
@@ -42,7 +41,6 @@ class Register extends Component {
         return (
             <form onSubmit={this.onSubmit}>
                 <input type="email" name="email" placeholder="Email" value={this.state.email} onChange={this.onInputChange} required/>
-                <input type="text" name="nickname" placeholder="Nickname" value={this.state.nickname} onChange={this.onInputChange}/>
                 <input type="password" name="password" placeholder="Password" value={this.state.password} onChange={this.onInputChange} required/>
                 <input type="submit" value="submit"/>
             </form>
@@ -50,4 +48,4 @@ class Register extends Component {
     }
 }
 
-export default Register
+export default Login
