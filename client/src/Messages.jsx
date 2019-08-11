@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
+import {withCookies} from 'react-cookie';
 import {Form, InputGroup, FormControl, Button, ListGroup } from 'react-bootstrap'
 import openSocket from 'socket.io-client';
+// const socket = openSocket('http://10.0.0.100:8080');
 
 class Messages extends Component {
     constructor(props) {
@@ -11,8 +13,11 @@ class Messages extends Component {
             lastTimestamp: new Date(Date.now()),
             messages: [],
             input: '',
-            socket: openSocket('http://localhost:8080')
+            socket: openSocket('http://10.0.0.100:8080')
         };
+
+        // socket.connect();
+        // alert(socket.connected);
 
         const document = this;
         this.state.socket.on('broadcast', data => {
@@ -39,7 +44,12 @@ class Messages extends Component {
     }
 
     send = (content) => {
-        this.state.socket.emit('send', content);
+        const {cookies} = this.props;
+        const payload = {
+            content,
+            token: cookies.get('token')
+        };
+        this.state.socket.emit('send', JSON.stringify(payload));
     };
 
     componentWillUnmount() {
@@ -112,4 +122,4 @@ class Messages extends Component {
     }
 }
 
-export default Messages
+export default withCookies(Messages)

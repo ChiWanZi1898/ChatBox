@@ -6,8 +6,7 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
-const socketIoCookieParser = require("socket.io-cookie-parser");
-
+var cookie = require('cookie');
 const accountRouter = require('./account');
 const Message = require('./models/Message');
 
@@ -19,20 +18,27 @@ app.use(cookieParser());
 
 app.use('/api/account', accountRouter);
 
-io.use(socketIoCookieParser());
 
 io.use((socket, next) => {
-    const token = socket.request.cookies.token;
+
+
+    const {token }= cookie.parse(socket.handshake.headers.cookie);
 
     if (!token) {
         next(new Error('Token not found.'));
     }
 
+    console.log(token);
+
     jwt.verify(token, secret, (err, decoded) => {
+
+        console.log(decoded);
+
         if(err) {
             return next(err);
         } else {
             socket.email = decoded.email;
+            console.log('send', socket.email);
             next();
         }
     });
@@ -40,20 +46,36 @@ io.use((socket, next) => {
 
 io.on('connection', (socket) => {
 
-    socket.on('send', (content) => {
-        let date = Date.now();
-        const email = socket.email;
+    socket.on('send', (payload) => {
 
-        if (socket.email !== '7@example.com') {
-            date = date - new Date(1970, 1, 0) ;
+        const {token, content} = JSON.parse(payload);
+
+        if (!token) {
+            return;
         }
 
-        const message = new Message({email, date, content});
-        message.save();
+        jwt.verify(token, secret, (err, decoded) => {
+            if (err) {
+                return next(err);
+            } else {
+                const email = decoded.email;
 
-        const payload = JSON.stringify(message);
+                let date = Date.now();
+                // const email = socket.email;
+                // const email = 'test@test.com';
 
-        io.emit('broadcast', payload);
+                // console.log('send', email);
+
+                const message = new Message({email, date, content});
+                message.save();
+
+                const payload = JSON.stringify(message);
+
+                io.emit('broadcast', payload);
+            }
+        });
+
+
     });
 });
 
