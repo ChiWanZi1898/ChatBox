@@ -27,26 +27,28 @@ app.get('/test', (req, res) => {
 io.use((socket, next) => {
 
 
-    const {token }= cookie.parse(socket.handshake.headers.cookie);
+    // const {token }= cookie.parse(socket.handshake.headers.cookie);
+    console.log(socket.handshake.headers.cookie);
+    next();
 
-    if (!token) {
-        next(new Error('Token not found.'));
-    }
-
-    console.log(token);
-
-    jwt.verify(token, secret, (err, decoded) => {
-
-        console.log(decoded);
-
-        if(err) {
-            return next(err);
-        } else {
-            socket.email = decoded.email;
-            console.log('send', socket.email);
-            next();
-        }
-    });
+    // if (!token) {
+    //     next(new Error('Token not found.'));
+    // }
+    //
+    // console.log(token);
+    //
+    // jwt.verify(token, secret, (err, decoded) => {
+    //
+    //     console.log(decoded);
+    //
+    //     if(err) {
+    //         return next(err);
+    //     } else {
+    //         socket.email = decoded.email;
+    //         console.log('send', socket.email);
+    //         next();
+    //     }
+    // });
 });
 
 io.on('connection', (socket) => {
