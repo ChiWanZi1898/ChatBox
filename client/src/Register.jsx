@@ -1,8 +1,12 @@
 import React, {Component} from 'react';
+import { Form, Button } from 'react-bootstrap';
 
 class Register extends Component {
     constructor(props) {
         super(props);
+
+        this.onInputChange = this.onInputChange.bind(this);
+
         this.state = {
             email: '',
             password: '',
@@ -40,12 +44,23 @@ class Register extends Component {
 
     render() {
         return (
-            <form onSubmit={this.onSubmit}>
-                <input type="email" name="email" placeholder="Email" value={this.state.email} onChange={this.onInputChange} required/>
-                <input type="text" name="nickname" placeholder="Nickname" value={this.state.nickname} onChange={this.onInputChange}/>
-                <input type="password" name="password" placeholder="Password" value={this.state.password} onChange={this.onInputChange} required/>
-                <input type="submit" value="submit"/>
-            </form>
+            <Form onSubmit={this.onSubmit}>
+                <Form.Group controlId="formGroupEmail" value={this.state.email} onChange={this.onInputChange} required >
+                    <Form.Label>Email address</Form.Label>
+                    <Form.Control type="email" placeholder="Enter email" name="email"/>
+                </Form.Group>
+                <Form.Group controlId="formGroupPassword" value={this.state.password} onChange={this.onInputChange} required>
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control type="password" placeholder="Password" name="password"/>
+                </Form.Group>
+                <Form.Group controlId="formGroupNickname"  value={this.state.nickname} onChange={this.onInputChange}>
+                    <Form.Label>Nickname</Form.Label>
+                    <Form.Control type="text" placeholder="Nickname" name="nickname"/>
+                </Form.Group>
+                <Button variant="outline-primary" type="submit">
+                    Register
+                </Button>
+            </Form>
         )
     }
 }

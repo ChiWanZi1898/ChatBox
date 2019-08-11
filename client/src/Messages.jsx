@@ -1,109 +1,114 @@
 import React, {Component} from 'react';
-import axios from 'axios';
+import {Form, InputGroup, FormControl, Button, ListGroup } from 'react-bootstrap'
 import openSocket from 'socket.io-client';
-const socket = openSocket('http://localhost:8080');
-
-// function subscribeToTimer(cb) {
-//     socket.on('timer', timestamp => cb(null, timestamp));
-//     socket.emit('subscribeToTimer', 1000);
-// }
-
-function send() {
-    socket.emit('send', 'hahaha');
-}
 
 class Messages extends Component {
     constructor(props) {
         super(props);
+
+
         this.state = {
-            messages: ['hahaha', 'hahdfadsf'],
-            timestamp: 'no timestamp yet'
+            lastTimestamp: new Date(Date.now()),
+            messages: [],
+            input: '',
+            socket: openSocket('http://localhost:8080')
         };
 
         const document = this;
-        socket.on('broadcast', message => {
-            document.setState({
-                messages: [...document.state.messages, message]
-            })
-        });
+        this.state.socket.on('broadcast', data => {
+            const payload = JSON.parse(data);
+            payload.date = new Date(Date.parse(payload.date));
+            // console.log(payload.date, document.state.lastTimestamp, payload.date > document.state.lastTimestamp, payload.date < document.state.lastTimestamp);
+            if (payload.date < document.state.lastTimestamp) {
+                document.setState({
+                    messages: [...document.state.messages, payload],
+                    lastTimestamp: payload.date
+                });
 
-        // this.updateMessage = this.updateMessage.bind(this);
+            } else {
+                const sortedMessages = [...document.state.messages, payload].sort((a, b) => {
+                    return a.date - b.date;
+                });
+                document.setState({
+                    messages: sortedMessages,
+                });
+            }
+
+        });
 
     }
 
-    // componentDidMount() {
-    //     const {messages, eventSource} = this.state;
-    //     eventSource.addEventListener('message', message => {
-    //
-    //         this.setState({
-    //             messages: messages.concat([message.data])
-    //         });
-    //
-    //     });
-    //         // this.updateMessage(e.data);
-    // }
+    send = (content) => {
+        this.state.socket.emit('send', content);
+    };
 
-    // updateMessage(message) {
-    //     console.log('up');
-    //     // let newData = this.state.data.map(item => {
-    //     //     if (item.flight === flightState.flight) {
-    //     //         item.state = flightState.state;
-    //     //     }
-    //     //     return item;
-    //     // });
-    //
-    //     console.log(message);
-    // }
+    componentWillUnmount() {
+        this.state.socket.close();
+    }
 
-    // componentDidMount() {
-    //     this.interval = setInterval(this.updateMessage, 1000);
-    //     this.updateMessage();
-    // }
+    onInputChange = (event) => {
+        const {value, name} = event.target;
+        this.setState({
+            [name]: value
+        })
+    };
 
-    // componentWillUnmount() {
-    //     // clearInterval(this.interval);
-    //     this.eventSource.close();
-    // }
+    onSend = (event) => {
+        event.preventDefault();
+        this.send(this.state.input);
+        // this.setState({
+        //     input: ""
+        // });
+    };
 
-
-    // updateMessage() {
-    //     axios.get('/api/messages')
-    //         .then(response => {
-    //             const newMessages = response.data.messages.map(message => {
-    //                 return message.message
-    //             });
-    //             this.setState({
-    //                 messages: this.state.messages.concat(newMessages)
-    //             })
-    //         })
-    //         .catch(error => {
-    //             console.log(error);
-    //         });
-    // }
-
-
-
-
+    formatDate = (date) => {
+        // const diff = Date.now() - date.getTime();
+        // if (diff < 1000 * 60) {
+        //     return `${Math.round(diff / 1000)} seconds ago`;
+        // } else if (diff < 1000 * 60 * 60) {
+        //     return `${Math.round(diff / 1000 / 60)} minutes ago`;
+        // } else {
+        return date.toLocaleString();
+        // }
+    };
 
     render() {
+        const scrollContainerStyle = {flex: "1", height: "100%"};
         return (
-            <div>
-                <ul>
-                    {this.state.messages.map((message, idx) => {
-                        return <li key={idx}>{message}</li>;
-                    })}
-                </ul>
-                <button onClick={send}>Send</button>
+            <div style={scrollContainerStyle} className="d-flex flex-column">
+
+                <div className="overflow-auto" style={{overflowY: "scroll", flex: "initial", height: "60%"}}>
+                    <ListGroup variant="">
+
+                        {this.state.messages.slice(0).reverse().map((message, idx) => {
+                            return (
+                                <ListGroup.Item key={message._id} className="flex-column align-items-start">
+                                    <div className="d-flex w-100 justify-content-between">
+                                        <p className="text-break ">{message.content}</p>
+                                        <small className="col-2">{this.formatDate(message.date)}</small>
+                                    </div>
+                                    <small>{message.email} </small>
+                                </ListGroup.Item>
+                            )
+                        })}
+                    </ListGroup>
+                </div>
+
+                <div style={{position: "fixed", bottom: "0", width: "auto"}}>
+                    <Form onSubmit={this.onSend} className="">
+                        <InputGroup className="shadow-none mb-3">
+                            <FormControl as="textarea" rows="2" className="shadow-none" name="input"
+                                         onChange={this.onInputChange} value={this.state.input}
+                                         style={{resize: "none"}}/>
+                            <InputGroup.Append>
+                                <Button variant="outline-primary" className="shadow-none" type="submit">Send</Button>
+                            </InputGroup.Append>
+                        </InputGroup>
+                    </Form>
+                </div>
+
             </div>
-
-
         )
-
-        // return (
-        //     <p>
-        //         This is {this.state.timestamp}
-        //     </p>
-        // )
     }
 }
 

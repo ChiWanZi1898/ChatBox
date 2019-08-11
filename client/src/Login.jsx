@@ -1,8 +1,13 @@
 import React, {Component} from 'react';
+import {Button, Form} from "react-bootstrap";
+import { withRouter } from "react-router-dom";
 
 class Login extends Component {
     constructor(props) {
         super(props);
+
+        this.onSubmit = this.onSubmit.bind(this);
+
         this.state = {
             email: '',
             password: '',
@@ -27,7 +32,9 @@ class Login extends Component {
         }).then(res => {
             if (res.status === 200) {
                 console.log('Logged in');
-                alert('Logged in successfully!');
+                // alert('Logged in successfully!');
+                this.props.history.push('/messages');
+                this.props.callback();
             } else {
                 throw new Error(res.error);
             }
@@ -39,13 +46,21 @@ class Login extends Component {
 
     render() {
         return (
-            <form onSubmit={this.onSubmit}>
-                <input type="email" name="email" placeholder="Email" value={this.state.email} onChange={this.onInputChange} required/>
-                <input type="password" name="password" placeholder="Password" value={this.state.password} onChange={this.onInputChange} required/>
-                <input type="submit" value="submit"/>
-            </form>
+            <Form onSubmit={this.onSubmit}>
+                <Form.Group controlId="formGroupEmail" value={this.state.email} onChange={this.onInputChange} required >
+                    <Form.Label>Email address</Form.Label>
+                    <Form.Control type="email" placeholder="Enter email" name="email"/>
+                </Form.Group>
+                <Form.Group controlId="formGroupPassword" value={this.state.password} onChange={this.onInputChange} required>
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control type="password" placeholder="Password" name="password"/>
+                </Form.Group>
+                <Button variant="outline-primary" type="submit">
+                    Login
+                </Button>
+            </Form>
         )
     }
 }
 
-export default Login
+export default withRouter(Login);

@@ -1,17 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const cookie = require('cookie');
 
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
+const socketIoCookieParser = require("socket.io-cookie-parser");
 
 const accountRouter = require('./account');
-const User = require('./models/User');
-const authToken = require('./AuthToken');
+const Message = require('./models/Message');
 
 const secret = 'CCCCChat';
 
@@ -21,21 +19,10 @@ app.use(cookieParser());
 
 app.use('/api/account', accountRouter);
 
-app.get('/api/messages', authToken, function(req, res) {
-    res.status('200').send({messages: [{message: "haha"}, {message: "heihei"}]});
-});
+io.use(socketIoCookieParser());
 
 io.use((socket, next) => {
-
-
-    const cookie_str = socket.request.headers.cookie;
-    let cookies = {};
-    try {
-        cookies = cookie.parse(cookie_str);
-    } catch (err) {
-        next(err);
-    }
-    const token = cookies.token;
+    const token = socket.request.cookies.token;
 
     if (!token) {
         next(new Error('Token not found.'));
@@ -52,11 +39,21 @@ io.use((socket, next) => {
 });
 
 io.on('connection', (socket) => {
-    // TODO https://community.4geeks.co/socket-io-with-token-authentication/
 
     socket.on('send', (content) => {
-        console.log(content, socket.email);
-        io.emit('broadcast', content);
+        let date = Date.now();
+        const email = socket.email;
+
+        if (socket.email !== '7@example.com') {
+            date = date - new Date(1970, 1, 0) ;
+        }
+
+        const message = new Message({email, date, content});
+        message.save();
+
+        const payload = JSON.stringify(message);
+
+        io.emit('broadcast', payload);
     });
 });
 
