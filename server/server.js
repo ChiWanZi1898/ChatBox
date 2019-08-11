@@ -19,6 +19,11 @@ app.use(cookieParser());
 app.use('/api/account', accountRouter);
 
 
+app.get('/test', (req, res) => {
+   res.status(200).send('Hi!')
+});
+
+
 io.use((socket, next) => {
 
 
