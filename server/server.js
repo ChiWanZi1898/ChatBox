@@ -2,21 +2,36 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const autoIncrement = require('mongoose-auto-increment');
 
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 var cookie = require('cookie');
 const accountRouter = require('./account');
+const chatRouter = require('./chat');
 const Message = require('./models/Message');
+const MessageCounter = require('./models/MessageCounter');
 
 const secret = 'CCCCChat';
+
+const mongo_uri = 'mongodb://localhost/chatbox';
+mongoose.connect(mongo_uri, {useNewUrlParser: true}, function (err) {
+    if (err) {
+        throw err;
+    } else {
+        console.log(`Connected to DB ${mongo_uri}.`);
+    }
+});
+mongoose.set('useFindAndModify', false);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 
 app.use('/api/account', accountRouter);
+app.use('/api/chat', chatRouter);
 
 
 app.get('/test', (req, res) => {
@@ -25,7 +40,7 @@ app.get('/test', (req, res) => {
 
 
 io.use((socket, next) => {
-    console.log(socket.handshake.headers.cookie);
+    // console.log(socket.handshake.headers.cookie);
     if (socket.handshake.headers.cookie) {
         const { token }= cookie.parse(socket.handshake.headers.cookie);
         if (!token) {
@@ -66,16 +81,36 @@ io.on('connection', (socket) => {
                 let date = Date.now();
 
                 const message = new Message({email, date, content});
-                message.save();
 
-                const payload = JSON.stringify(message);
-
-                io.emit('broadcast', payload);
+                addMessageSeq(message, (message) => {
+                    const payload = JSON.stringify(message);
+                    io.emit('broadcast', payload);
+                })
             }
         });
-
-
     });
 });
+
+addMessageSeq = (message, callback) => {
+    MessageCounter.findOneAndUpdate(
+        {},
+        {$inc: {latest: 1}},
+        {upsert: true, setDefaultsOnInsert: true},
+        (err, docs) => {
+
+            let latestID;
+            if (err) {
+                next(err);
+            } else if (docs) {
+                latestID = docs.latest;
+            } else {
+                latestID = 0;
+            }
+            message.seq = latestID;
+            message.save();
+            callback(message);
+        }
+    );
+};
 
 http.listen(8080);

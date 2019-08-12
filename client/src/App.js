@@ -17,11 +17,12 @@ class App extends Component {
         super(props);
 
         this.state = {
-            isLoggedIn: false,
-            height: 0,
-            email: undefined,
-            nickname: undefined
+            isLoggedIn: true,
+            messageBoxHeight: 0,
+            email: "",
+            nickname: ""
         };
+
     }
 
     handleLogin = () => {
@@ -42,14 +43,12 @@ class App extends Component {
     };
 
     componentDidMount() {
+        this.getUserInfo();
         this.updateWindowHeight();
         window.addEventListener('resize', this.updateWindowHeight);
-
-        this.getUserInfo();
     }
 
     getUserInfo = () => {
-
         if (this.props.cookies.get('token') === undefined ) {
             this.setState({
                 isLoggedIn: false,
@@ -81,7 +80,7 @@ class App extends Component {
     }
 
     updateWindowHeight = () => {
-        this.setState({height: window.innerHeight});
+        this.setState({messageBoxHeight: window.innerHeight});
     };
 
     render() {
@@ -105,7 +104,7 @@ class App extends Component {
         }
 
         const mainContainerStyle = {
-            height: `${this.state.height}px`,
+            messageBoxHeight: `${this.state.messageBoxHeight}px`,
             width: '100%',
         };
 
@@ -128,7 +127,7 @@ class App extends Component {
                         <Route path="/" exact render={() => <Home isLoggedIn={this.state.isLoggedIn} email={this.state.email} nickname={this.state.nickname}/>}/>
                         <Route path="/register" render={() => <Register isLoggedIn={this.state.isLoggedIn} callback={this.handleLogin}/>}/>
                         <Route path="/login" render={() => <Login isLoggedIn={this.state.isLoggedIn} callback={this.handleLogin}/>}/>
-                        <Route path="/messages" render={() => this.state.isLoggedIn ? <Messages isLoggedIn={this.state.isLoggedIn}/> : <Unauthorized/>}/>
+                        <Route path="/messages" render={() => this.state.isLoggedIn ? <Messages/> : <Unauthorized/>}/>
                         <Route component={NotFound} />
                     </Switch>
                 </Container>

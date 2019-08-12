@@ -1,20 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
+
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 const authToken = require('./AuthToken');
 
 const secret = 'CCCCChat';
 
-const mongo_uri = 'mongodb://localhost/chatbox';
-mongoose.connect(mongo_uri, {useNewUrlParser: true}, function (err) {
-    if (err) {
-        throw err;
-    } else {
-        console.log(`Connected to DB ${mongo_uri}.`);
-    }
-});
 
 router.post('/register', function (req, res) {
     const {email, password, nickname} = req.body;
