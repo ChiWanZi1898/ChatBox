@@ -127,7 +127,7 @@ class App extends Component {
                         <Route path="/" exact render={() => <Home isLoggedIn={this.state.isLoggedIn} email={this.state.email} nickname={this.state.nickname}/>}/>
                         <Route path="/register" render={() => <Register isLoggedIn={this.state.isLoggedIn} callback={this.handleLogin}/>}/>
                         <Route path="/login" render={() => <Login isLoggedIn={this.state.isLoggedIn} callback={this.handleLogin}/>}/>
-                        <Route path="/messages" render={() => this.state.isLoggedIn ? <Messages/> : <Unauthorized/>}/>
+                        <Route path="/messages" render={() => this.state.isLoggedIn ? <Messages email={this.state.email} nickname={this.state.nickname} /> : <Unauthorized/>}/>
                         <Route component={NotFound} />
                     </Switch>
                 </Container>

@@ -2,7 +2,7 @@ import React, {Component, createRef} from 'react';
 import {findDOMNode} from 'react-dom';
 import {withCookies} from 'react-cookie';
 import {withRouter} from 'react-router-dom';
-import {Form, InputGroup, FormControl, Button, ListGroup} from 'react-bootstrap'
+import {Form, InputGroup, FormControl, Button, ListGroup, Badge} from 'react-bootstrap'
 import openSocket from 'socket.io-client';
 import axios from 'axios'
 
@@ -15,7 +15,7 @@ class Messages extends Component {
             lastID: -1,
             messages: [],
             input: '',
-            socket: openSocket('http://10.0.0.100:8080'),
+            socket: openSocket('http://18.217.70.32:8080'),
 
             width: undefined,
             messageBoxHeight: undefined
@@ -88,6 +88,10 @@ class Messages extends Component {
     onSend = (event) => {
         event.preventDefault();
         this.send(this.state.input);
+
+        this.setState({
+            input: ''
+        })
     };
 
     onScroll = () => {
@@ -169,7 +173,8 @@ class Messages extends Component {
                                         <small className="col-2">{this.formatDate(message.date)}</small>
                                     </div>
                                     <small>{message.email} </small>
-                                    <small>{message.seq} </small>
+                                    <small>#{message.seq} </small>
+                                    {this.props.email === message.email ? <Badge variant="primary">Me</Badge> : <Badge variant="secondary">Others</Badge> }
                                 </ListGroup.Item>
                             )
                         })}
