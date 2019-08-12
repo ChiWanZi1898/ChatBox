@@ -146,7 +146,11 @@ class Messages extends Component {
                 lastID: sortedMessages[sortedMessages.length - 1].seq,
                 firstID: sortedMessages[0].seq
             });
-            callback();
+
+            if (callback) {
+                callback();
+            }
+
 
         }).catch(err => {
             console.log(err);
