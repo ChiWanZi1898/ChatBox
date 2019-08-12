@@ -13,7 +13,7 @@ class Messages extends Component {
             lastTimestamp: new Date(Date.now()),
             messages: [],
             input: '',
-            socket: openSocket('http://66.42.40.3:8080')
+            socket: openSocket('http://18.217.70.32:8080')
         };
 
         // socket.connect();
