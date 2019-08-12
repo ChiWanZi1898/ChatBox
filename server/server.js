@@ -25,31 +25,25 @@ app.get('/test', (req, res) => {
 
 
 io.use((socket, next) => {
-    console.log('handshake', socket);
+    console.log(socket.handshake.headers.cookie);
     if (socket.handshake.headers.cookie) {
-        const {token }= cookie.parse(socket.handshake.headers.cookie);
+        const { token }= cookie.parse(socket.handshake.headers.cookie);
         if (!token) {
             next(new Error('Token not found.'));
         }
-        console.log('token', token);
 
         jwt.verify(token, secret, (err, decoded) => {
-
-            console.log('decoded', decoded);
 
             if(err) {
                 return next(err);
             } else {
                 socket.email = decoded.email;
-                console.log('send', socket.email);
                 next();
             }
         });
     } else {
         next (new Error('Cookie not found.'));
     }
-
-
 
 });
 
@@ -70,10 +64,6 @@ io.on('connection', (socket) => {
                 const email = decoded.email;
 
                 let date = Date.now();
-                // const email = socket.email;
-                // const email = 'test@test.com';
-
-                // console.log('send', email);
 
                 const message = new Message({email, date, content});
                 message.save();

@@ -9,16 +9,12 @@ import Login from './Login'
 import Messages from './Messages'
 import Logout from './Logout'
 import Home from './Home'
+import NotFound from './NotFound'
+import Unauthorized from './Unauthorized'
 
 class App extends Component {
     constructor(props) {
         super(props);
-
-        this.handleLogin = this.handleLogin.bind(this);
-        this.handleLogout = this.handleLogout.bind(this);
-        this.updateWindowHeight = this.updateWindowHeight.bind(this);
-
-        const {cookies} = this.props;
 
         this.state = {
             isLoggedIn: false,
@@ -28,20 +24,22 @@ class App extends Component {
         };
     }
 
-    handleLogin() {
+    handleLogin = () => {
         this.setState({
             isLoggedIn: true
         });
         this.getUserInfo();
-    }
+    };
 
-    handleLogout() {
+    handleLogout = () => {
         this.setState({
-            isLoggedIn: false
+            isLoggedIn: false,
+            email: undefined,
+            nickname: undefined
         });
         const {cookies} = this.props;
         cookies.remove('token');
-    }
+    };
 
     componentDidMount() {
         this.updateWindowHeight();
@@ -51,6 +49,16 @@ class App extends Component {
     }
 
     getUserInfo = () => {
+
+        if (this.props.cookies.get('token') === undefined ) {
+            this.setState({
+                isLoggedIn: false,
+                email: undefined,
+                nickname: undefined
+            });
+            return;
+        }
+
         axios.get('/api/account/user-info').then(res => {
             this.setState({
                 isLoggedIn: true,
@@ -64,7 +72,7 @@ class App extends Component {
                 nickname: undefined
             });
             const {cookies} = this.props;
-            // cookies.remove('token');
+            cookies.remove('token');
         });
     };
 
@@ -72,9 +80,9 @@ class App extends Component {
         window.removeEventListener('resize', this.updateWindowHeight);
     }
 
-    updateWindowHeight() {
+    updateWindowHeight = () => {
         this.setState({height: window.innerHeight});
-    }
+    };
 
     render() {
 
@@ -117,10 +125,11 @@ class App extends Component {
 
                 <Container className="mt-3 flex-grow-1 d-flex flex-column" style={{maxWidth: "800px", flex: "1"}}>
                     <Switch>
-                        <Route path="/" exact render={() => <Home email={this.state.email} nickname={this.state.nickname}/>}/>
-                        <Route path="/register" render={() => <Register callback={this.handleLogin}/>}/>
-                        <Route path="/login" render={() => <Login callback={this.handleLogin}/>}/>
-                        <Route path="/messages" component={Messages}/>
+                        <Route path="/" exact render={() => <Home isLoggedIn={this.state.isLoggedIn} email={this.state.email} nickname={this.state.nickname}/>}/>
+                        <Route path="/register" render={() => <Register isLoggedIn={this.state.isLoggedIn} callback={this.handleLogin}/>}/>
+                        <Route path="/login" render={() => <Login isLoggedIn={this.state.isLoggedIn} callback={this.handleLogin}/>}/>
+                        <Route path="/messages" render={() => this.state.isLoggedIn ? <Messages isLoggedIn={this.state.isLoggedIn}/> : <Unauthorized/>}/>
+                        <Route component={NotFound} />
                     </Switch>
                 </Container>
             </div>

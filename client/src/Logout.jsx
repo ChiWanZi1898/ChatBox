@@ -8,26 +8,23 @@ class Logout extends Component {
 
     constructor(props) {
         super(props);
-        this.handleClose = this.handleClose.bind(this);
-        this.handleShow = this.handleShow.bind(this);
 
         this.state = {
             show: false
         }
     }
 
-    handleClose() {
+    handleClose = () => {
         this.setState({
             show: false
         });
-    }
+    };
 
-    handleShow() {
+    handleShow = () => {
         this.setState({
             show: true
         });
-    }
-
+    };
 
     render() {
         return (
@@ -46,7 +43,7 @@ class Logout extends Component {
                             const {cookies} = this.props;
                             cookies.remove('token');
                             this.handleClose();
-                            this.props.history.push('/login')
+                            this.props.history.push('/login');
                             this.props.callback();
                         }}>
                             Logout

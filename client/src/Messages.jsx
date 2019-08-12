@@ -1,29 +1,25 @@
 import React, {Component} from 'react';
-import {withCookies} from 'react-cookie';
-import {Form, InputGroup, FormControl, Button, ListGroup } from 'react-bootstrap'
+import { withCookies } from 'react-cookie';
+import { withRouter } from 'react-router-dom';
+import { Form, InputGroup, FormControl, Button, ListGroup } from 'react-bootstrap'
 import openSocket from 'socket.io-client';
-// const socket = openSocket('http://10.0.0.100:8080');
 
 class Messages extends Component {
     constructor(props) {
         super(props);
 
-
         this.state = {
             lastTimestamp: new Date(Date.now()),
             messages: [],
             input: '',
-            socket: openSocket('http://18.217.70.32:8080')
+            socket: openSocket('http://10.0.0.100:8080')
         };
 
-        // socket.connect();
-        // alert(socket.connected);
 
         const document = this;
         this.state.socket.on('broadcast', data => {
             const payload = JSON.parse(data);
             payload.date = new Date(Date.parse(payload.date));
-            // console.log(payload.date, document.state.lastTimestamp, payload.date > document.state.lastTimestamp, payload.date < document.state.lastTimestamp);
             if (payload.date < document.state.lastTimestamp) {
                 document.setState({
                     messages: [...document.state.messages, payload],
@@ -38,9 +34,7 @@ class Messages extends Component {
                     messages: sortedMessages,
                 });
             }
-
         });
-
     }
 
     send = (content) => {
@@ -51,6 +45,12 @@ class Messages extends Component {
         };
         this.state.socket.emit('send', JSON.stringify(payload));
     };
+
+    // componentDidMount() {
+    //     if (!this.props.isLoggedIn) {
+    //         this.props.history.push('/');
+    //     }
+    // }
 
     componentWillUnmount() {
         this.state.socket.close();
@@ -66,20 +66,10 @@ class Messages extends Component {
     onSend = (event) => {
         event.preventDefault();
         this.send(this.state.input);
-        // this.setState({
-        //     input: ""
-        // });
     };
 
     formatDate = (date) => {
-        // const diff = Date.now() - date.getTime();
-        // if (diff < 1000 * 60) {
-        //     return `${Math.round(diff / 1000)} seconds ago`;
-        // } else if (diff < 1000 * 60 * 60) {
-        //     return `${Math.round(diff / 1000 / 60)} minutes ago`;
-        // } else {
         return date.toLocaleString();
-        // }
     };
 
     render() {
@@ -122,4 +112,4 @@ class Messages extends Component {
     }
 }
 
-export default withCookies(Messages)
+export default withRouter(withCookies(Messages))

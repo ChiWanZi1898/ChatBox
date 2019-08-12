@@ -24,8 +24,8 @@ class Home extends Component {
         }
 
         return (
-            <div className="">
-                <h1 className="mt-5">Chat Box</h1>
+            <div className="mt-5">
+                <h1>Chat Box</h1>
                 { greetings }
             </div>
         );

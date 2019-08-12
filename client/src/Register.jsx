@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import { Form, Button } from 'react-bootstrap';
+import { withRouter } from 'react-router-dom';
 
 class Register extends Component {
     constructor(props) {
         super(props);
-
-        this.onInputChange = this.onInputChange.bind(this);
 
         this.state = {
             email: '',
@@ -33,6 +32,7 @@ class Register extends Component {
             if (res.status === 200) {
                 console.log('Registered');
                 alert('Registered successfully!');
+                this.props.history.push('/login');
             } else {
                 throw new Error(res.error);
             }
@@ -65,4 +65,4 @@ class Register extends Component {
     }
 }
 
-export default Register
+export default withRouter(Register)

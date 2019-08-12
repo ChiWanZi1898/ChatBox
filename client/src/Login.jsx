@@ -6,8 +6,6 @@ class Login extends Component {
     constructor(props) {
         super(props);
 
-        this.onSubmit = this.onSubmit.bind(this);
-
         this.state = {
             email: '',
             password: '',
@@ -32,7 +30,6 @@ class Login extends Component {
         }).then(res => {
             if (res.status === 200) {
                 console.log('Logged in');
-                // alert('Logged in successfully!');
                 this.props.history.push('/messages');
                 this.props.callback();
             } else {

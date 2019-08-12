@@ -50,7 +50,6 @@ router.post('/login', function (req, res) {
 
                     const token = jwt.sign({email}, secret, {expiresIn: '1h'});
                     res.cookie('token', token).sendStatus(200);
-                    console.log('login', email, token);
                 }
             })
         }
