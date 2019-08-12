@@ -15,7 +15,7 @@ class Messages extends Component {
             lastID: -1,
             messages: [],
             input: '',
-            socket: openSocket('http://18.217.70.32:8080'),
+            socket: openSocket('http://www.zhuhongyu.org:8080'),
             // socket: openSocket('http://10.0.0.100:8080'),
 
             width: undefined,
