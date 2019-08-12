@@ -15,7 +15,8 @@ class Messages extends Component {
             lastID: -1,
             messages: [],
             input: '',
-            socket: openSocket('http://18.217.70.32:8080'),
+            // socket: openSocket('http://18.217.70.32:8080'),
+            socket: openSocket('http://10.0.0.100:8080'),
 
             width: undefined,
             messageBoxHeight: undefined
@@ -61,12 +62,14 @@ class Messages extends Component {
     componentDidMount() {
         this.updateWindowSize();
         window.addEventListener('resize', this.updateWindowSize);
+        document.addEventListener('keypress', this.handleKeyPress);
         this.fetchHistory(-1, -1);
     }
 
     componentWillUnmount() {
         this.state.socket.close();
         window.removeEventListener('resize', this.updateWindowSize);
+        document.removeEventListener('keyup', this.handleKeyPress);
     }
 
     send = (content) => {
@@ -81,17 +84,20 @@ class Messages extends Component {
     onInputChange = (event) => {
         const {value, name} = event.target;
         this.setState({
-            [name]: value
+            [name]: value[value.length - 1] === '\n' ? value.slice(0, value.length - 1) : value
         })
     };
 
     onSend = (event) => {
         event.preventDefault();
-        this.send(this.state.input);
 
-        this.setState({
-            input: ''
-        })
+        if (!/^\s*$/.test(this.state.input)) {
+            this.send(this.state.input);
+
+            this.setState({
+                input: ''
+            })
+        }
     };
 
     onScroll = () => {
@@ -152,6 +158,12 @@ class Messages extends Component {
         return messages.filter(function(message) {
             return seen.hasOwnProperty(message.seq) ? false : (seen[message.seq] = true);
         });
+    };
+
+    handleKeyPress = (event) => {
+        if(event.keyCode === 13){
+            this.onSend(event)
+        }
     };
 
     render() {
