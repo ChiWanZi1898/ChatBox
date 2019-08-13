@@ -3,14 +3,13 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const autoIncrement = require('mongoose-auto-increment');
 
 const app = express();
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 var cookie = require('cookie');
-const accountRouter = require('./account');
-const chatRouter = require('./chat');
+const accountRouter = require('./paths/account');
+const chatRouter = require('./paths/history');
 const Message = require('./models/Message');
 const MessageCounter = require('./models/MessageCounter');
 
@@ -35,22 +34,19 @@ app.use('/api/chat', chatRouter);
 
 
 app.get('/test', (req, res) => {
-   res.status(200).send('Hi!')
+    res.status(200).send('Hi!')
 });
 
-
 io.use((socket, next) => {
-    // console.log(socket.handshake.headers.cookie);
 
     if (socket.handshake.headers.cookie) {
-        const { token }= cookie.parse(socket.handshake.headers.cookie);
+        const {token} = cookie.parse(socket.handshake.headers.cookie);
         if (!token) {
             next(new Error('Token not found.'));
         }
-
         jwt.verify(token, secret, (err, decoded) => {
 
-            if(err) {
+            if (err) {
                 return next(err);
             } else {
                 socket.email = decoded.email;
@@ -58,23 +54,17 @@ io.use((socket, next) => {
             }
         });
     } else {
-        next (new Error('Cookie not found.'));
+        next(new Error('Cookie not found.'));
     }
-
 });
 
 io.on('connection', (socket) => {
-
     socket.on('send', (payload) => {
-
-
-
         const {token, content} = JSON.parse(payload);
 
         if (!token) {
             return;
         }
-
         jwt.verify(token, secret, (err, decoded) => {
             if (err) {
                 return next(err);

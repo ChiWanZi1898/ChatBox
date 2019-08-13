@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const Message = require('./models/Message');
-const authToken = require('./AuthToken');
+const Message = require('../models/Message');
+const authToken = require('./authToken');
 
 router.get('/history', authToken, (req, res) => {
     let {startID, endID} = req.query;

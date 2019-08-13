@@ -14,8 +14,8 @@ class Messages extends Component {
             lastID: -1,
             messages: [],
             input: '',
-            socket: openSocket('http://www.zhuhongyu.org:8080'),
-            // socket: openSocket('http://10.0.0.100:8080'),
+            // socket: openSocket('http://www.zhuhongyu.org:8080'),
+            socket: openSocket('http://10.0.0.100:8080'),
 
             width: undefined,
             messageBoxHeight: undefined,
@@ -205,13 +205,13 @@ class Messages extends Component {
                                 <ListGroup.Item key={message._id} className="flex-column align-items-start">
                                     <div className="d-flex w-100 ">
                                         <p className="text-break ">{message.content}</p>
-                                        <small className="ml-auto col-2">{this.formatDate(message.date)}</small>
+                                        <small className="ml-auto col-2 text-right">{this.formatDate(message.date)}</small>
                                     </div>
                                     <div className="d-flex w-100 justify-content-start">
-                                        <small className="col-1 text-left" style={{padding: '0'}}>#{message.seq} </small>
-                                        <small className="col-2 text-left" style={{padding: '0'}}>{message.email} </small>
-                                        {this.props.email === message.email ? <Badge variant="primary">Me</Badge> :
+                                        <small className="text-left mr-3" style={{padding: '0'}}>{message.email} </small>
+                                        {this.props.email === message.email ? <Badge variant="primary" className="mr-auto">Me</Badge> :
                                             <Badge variant="primary"/>}
+                                        <small className="col-2 text-right " >#{message.seq} </small>
                                     </div>
 
                                 </ListGroup.Item>
