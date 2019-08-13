@@ -49,7 +49,7 @@ class App extends Component {
     }
 
     getUserInfo = () => {
-        if (this.props.cookies.get('token') === undefined ) {
+        if (this.props.cookies.get('token') === undefined) {
             this.setState({
                 isLoggedIn: false,
                 email: undefined,
@@ -113,7 +113,7 @@ class App extends Component {
             <div className="d-flex flex-column" style={mainContainerStyle}>
                 <Navbar bg="light" expand="sm">
                     <Container style={{maxWidth: "800px"}}>
-                        <Link to='/' ><Navbar.Brand>Chat Box</Navbar.Brand></Link>
+                        <Link to='/'><Navbar.Brand>Chat Box</Navbar.Brand></Link>
                         <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                         <Navbar.Collapse>
                             {navBarContents}
@@ -124,11 +124,16 @@ class App extends Component {
 
                 <Container className="mt-3 flex-grow-1 d-flex flex-column" style={{maxWidth: "800px", flex: "1"}}>
                     <Switch>
-                        <Route path="/" exact render={() => <Home isLoggedIn={this.state.isLoggedIn} email={this.state.email} nickname={this.state.nickname}/>}/>
-                        <Route path="/register" render={() => <Register isLoggedIn={this.state.isLoggedIn} callback={this.handleLogin}/>}/>
-                        <Route path="/login" render={() => <Login isLoggedIn={this.state.isLoggedIn} callback={this.handleLogin}/>}/>
-                        <Route path="/messages" render={() => this.state.isLoggedIn ? <Messages email={this.state.email} nickname={this.state.nickname} /> : <Unauthorized/>}/>
-                        <Route component={NotFound} />
+                        <Route path="/" exact
+                               render={() => <Home isLoggedIn={this.state.isLoggedIn} email={this.state.email}
+                                                   nickname={this.state.nickname}/>}/>
+                        <Route path="/register" render={() => <Register isLoggedIn={this.state.isLoggedIn}
+                                                                        callback={this.handleLogin}/>}/>
+                        <Route path="/login"
+                               render={() => <Login isLoggedIn={this.state.isLoggedIn} callback={this.handleLogin}/>}/>
+                        <Route path="/messages" render={() => this.state.isLoggedIn ?
+                            <Messages email={this.state.email} nickname={this.state.nickname}/> : <Unauthorized/>}/>
+                        <Route component={NotFound}/>
                     </Switch>
                 </Container>
             </div>

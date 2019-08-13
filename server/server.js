@@ -41,6 +41,7 @@ app.get('/test', (req, res) => {
 
 io.use((socket, next) => {
     // console.log(socket.handshake.headers.cookie);
+
     if (socket.handshake.headers.cookie) {
         const { token }= cookie.parse(socket.handshake.headers.cookie);
         if (!token) {
@@ -65,6 +66,8 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
 
     socket.on('send', (payload) => {
+
+
 
         const {token, content} = JSON.parse(payload);
 

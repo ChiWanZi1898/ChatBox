@@ -1,5 +1,4 @@
 import React, {Component, createRef} from 'react';
-import {findDOMNode} from 'react-dom';
 import {withCookies} from 'react-cookie';
 import {withRouter} from 'react-router-dom';
 import {Form, InputGroup, FormControl, Button, ListGroup, Badge} from 'react-bootstrap'
@@ -19,7 +18,9 @@ class Messages extends Component {
             // socket: openSocket('http://10.0.0.100:8080'),
 
             width: undefined,
-            messageBoxHeight: undefined
+            messageBoxHeight: undefined,
+
+            toBottomHeight: 0
         };
 
 
@@ -101,6 +102,11 @@ class Messages extends Component {
     };
 
     onScroll = () => {
+
+        this.setState({
+            toBottomHeight: this.messageBoxRef.current.scrollHeight - this.messageBoxRef.current.scrollTop
+        });
+
         const scrollTop = this.messageBoxRef.current.scrollTop;
         if (scrollTop === 0) {
             this.fetchHistory(-1, this.state.firstID);
@@ -108,7 +114,15 @@ class Messages extends Component {
     };
 
     formatDate = (date) => {
-        return date.toLocaleString();
+        let dateString =  date.toLocaleString(
+            'en-US-u-nu-latn-ca-iso8601-hc-h24',
+            {
+                dateStyle: 'medium',
+                timeStyle: 'medium'
+            }
+        );
+        dateString = dateString.replace(/,/g, '');
+        return dateString
     };
 
     scrollToBottom = () => {
@@ -116,13 +130,17 @@ class Messages extends Component {
         const height = this.messageBoxRef.current.clientHeight;
         const maxScrollTop = scrollHeight - height;
 
-        // console.log(maxScrollTop);
+        this.setState({
+            toBottomHeight: 0
+        });
 
         this.messageBoxRef.current.scrollTop = maxScrollTop > 0 ? maxScrollTop : 0;
     };
 
     fetchHistory = (startID, endID) => {
-        this.fetchMessages(startID, endID);
+        this.fetchMessages(startID, endID, () => {
+            this.messageBoxRef.current.scrollTop = this.messageBoxRef.current.scrollHeight - this.state.toBottomHeight;
+        });
     };
 
     fetchLost = (startID, endID) => {
@@ -132,15 +150,16 @@ class Messages extends Component {
     fetchMessages = (startID, endID, callback) => {
         axios.get('/api/chat/history', {params: {startID, endID}}).then(res => {
 
-            const messages = res.data;
-            messages.map((message, idx) => {
+            let messages = res.data;
+            messages = messages.map((message, idx) => {
                 message.date = new Date(Date.parse(message.date));
+                return message
             });
 
             const uniqueMessages = this.deduplicateMessages(this.state.messages.concat(messages));
             const sortedMessages = uniqueMessages.sort((a, b) => {
-                    return a.seq - b.seq;
-                });
+                return a.seq - b.seq;
+            });
             this.setState({
                 messages: sortedMessages,
                 lastID: sortedMessages[sortedMessages.length - 1].seq,
@@ -159,13 +178,13 @@ class Messages extends Component {
 
     deduplicateMessages = (messages) => {
         var seen = {};
-        return messages.filter(function(message) {
+        return messages.filter(function (message) {
             return seen.hasOwnProperty(message.seq) ? false : (seen[message.seq] = true);
         });
     };
 
     handleKeyPress = (event) => {
-        if(event.keyCode === 13){
+        if (event.keyCode === 13) {
             this.onSend(event)
         }
     };
@@ -184,13 +203,17 @@ class Messages extends Component {
                         {this.state.messages.map((message, idx) => {
                             return (
                                 <ListGroup.Item key={message._id} className="flex-column align-items-start">
-                                    <div className="d-flex w-100 justify-content-between">
+                                    <div className="d-flex w-100 ">
                                         <p className="text-break ">{message.content}</p>
-                                        <small className="col-2">{this.formatDate(message.date)}</small>
+                                        <small className="ml-auto col-2">{this.formatDate(message.date)}</small>
                                     </div>
-                                    <small>{message.email} </small>
-                                    <small>#{message.seq} </small>
-                                    {this.props.email === message.email ? <Badge variant="primary">Me</Badge> : <Badge variant="secondary">Others</Badge> }
+                                    <div className="d-flex w-100 justify-content-start">
+                                        <small className="col-1 text-left" style={{padding: '0'}}>#{message.seq} </small>
+                                        <small className="col-2 text-left" style={{padding: '0'}}>{message.email} </small>
+                                        {this.props.email === message.email ? <Badge variant="primary">Me</Badge> :
+                                            <Badge variant="primary"/>}
+                                    </div>
+
                                 </ListGroup.Item>
                             )
                         })}
