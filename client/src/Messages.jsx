@@ -16,7 +16,7 @@ class Messages extends Component {
             input: '',
             socket: openSocket('http://www.zhuhongyu.org:8080'),
             // socket: openSocket('http://10.0.0.100:8080'),
-
+            // socket: openSocket('http://127.0.0.1:8080'),
             width: undefined,
             messageBoxHeight: undefined,
 
@@ -209,9 +209,8 @@ class Messages extends Component {
                                     </div>
                                     <div className="d-flex w-100 justify-content-start">
                                         <small className="text-left mr-3" style={{padding: '0'}}>{message.email} </small>
-                                        {this.props.email === message.email ? <Badge variant="primary" className="mr-auto">Me</Badge> :
+                                        {this.props.email === message.email ? <Badge variant="primary" className="">Me</Badge> :
                                             <Badge variant="primary"/>}
-                                        <small className="col-2 text-right " >#{message.seq} </small>
                                     </div>
 
                                 </ListGroup.Item>

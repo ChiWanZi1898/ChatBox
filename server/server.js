@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
         }
         jwt.verify(token, secret, (err, decoded) => {
             if (err) {
-                return next(err);
+                console.log(err);
             } else {
                 const email = decoded.email;
 
