@@ -93,7 +93,8 @@ addMessageSeq = (message, callback) => {
 
             let latestID;
             if (err) {
-                next(err);
+                console.log(err);
+                return;
             } else if (docs) {
                 latestID = docs.latest;
             } else {
